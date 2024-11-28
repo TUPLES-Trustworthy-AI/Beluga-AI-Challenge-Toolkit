@@ -233,7 +233,7 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
                 i += 1
         i = 0
         for f, fluent in enumerate(pddl_state.fluents):
-            for args in fluent:
+            for args, val in fluent:
                 if i >= self.max_nb_atoms_or_fluents:
                     raise RuntimeError(
                         "Too many state fluents to store them in the state tensor; "
@@ -241,7 +241,7 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
                     )
                 state_array[2][i][0] = f
                 state_array[2][i][1 : 1 + len(args)] = args
-                state_array[2][i][-1] = fluent[args]
+                state_array[2][i][-1] = val
                 i += 1
         return state_array.flatten()
 
@@ -547,12 +547,12 @@ if __name__ == "__main__":
 
     print("Creating Sk{}PDDLDomain".format("P" if args.probabilistic else ""))
     domain_factory = lambda: (
-        SkdPPDDLDomain(inst, problem_name, problem_folder)
+        SkdPPDDLDomain(inst, problem_name, problem_folder, classic=classic)
         if args.probabilistic and args.probabilistic_model == "ppddl"
         else (
-            SkdSPDDLDomain(inst, problem_name, problem_folder)
+            SkdSPDDLDomain(inst, problem_name, problem_folder, classic=classic)
             if args.probabilistic and args.probabilistic_model == "arrivals"
-            else SkdPDDLDomain(inst, problem_name, problem_folder)
+            else SkdPDDLDomain(inst, problem_name, problem_folder, classic=classic)
         )
     )
     domain = domain_factory()

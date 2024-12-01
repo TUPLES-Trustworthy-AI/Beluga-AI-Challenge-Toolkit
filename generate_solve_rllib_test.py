@@ -536,6 +536,10 @@ if __name__ == "__main__":
     classic = not args.numeric
     max_simulation_steps = args.max_simulation_steps
 
+    if args.probabilistic and args.probabilistic_model == "ppddl" and classic:
+        print("Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model.")
+    sys.exit(1)
+
     print("Generating JSON instance")
     _, problem_name = encode_json(problem_folder, problem_name, config, pconfig=pconfig)
 
@@ -547,7 +551,7 @@ if __name__ == "__main__":
 
     print("Creating Sk{}PDDLDomain".format("P" if args.probabilistic else ""))
     domain_factory = lambda: (
-        SkdPPDDLDomain(inst, problem_name, problem_folder, classic=classic)
+        SkdPPDDLDomain(inst, problem_name, problem_folder)
         if args.probabilistic and args.probabilistic_model == "ppddl"
         else (
             SkdSPDDLDomain(inst, problem_name, problem_folder, classic=classic)

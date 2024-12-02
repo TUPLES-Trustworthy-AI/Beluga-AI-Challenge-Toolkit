@@ -538,7 +538,7 @@ if __name__ == "__main__":
 
     if args.probabilistic and args.probabilistic_model == "ppddl" and not classic:
         print("Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model.")
-    sys.exit(1)
+        sys.exit(1)
 
     print("Generating JSON instance")
     _, problem_name = encode_json(problem_folder, problem_name, config, pconfig=pconfig)

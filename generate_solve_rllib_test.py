@@ -233,7 +233,7 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
                 i += 1
         i = 0
         for f, fluent in enumerate(pddl_state.fluents):
-            for args in fluent:
+            for args, val in fluent:
                 if i >= self.max_nb_atoms_or_fluents:
                     raise RuntimeError(
                         "Too many state fluents to store them in the state tensor; "
@@ -241,7 +241,7 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
                     )
                 state_array[2][i][0] = f
                 state_array[2][i][1 : 1 + len(args)] = args
-                state_array[2][i][-1] = fluent[args]
+                state_array[2][i][-1] = val
                 i += 1
         return state_array.flatten()
 
@@ -536,6 +536,10 @@ if __name__ == "__main__":
     classic = not args.numeric
     max_simulation_steps = args.max_simulation_steps
 
+    if args.probabilistic and args.probabilistic_model == "ppddl" and not classic:
+        print("Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model.")
+        sys.exit(1)
+
     print("Generating JSON instance")
     _, problem_name = encode_json(problem_folder, problem_name, config, pconfig=pconfig)
 
@@ -550,9 +554,9 @@ if __name__ == "__main__":
         SkdPPDDLDomain(inst, problem_name, problem_folder)
         if args.probabilistic and args.probabilistic_model == "ppddl"
         else (
-            SkdSPDDLDomain(inst, problem_name, problem_folder)
+            SkdSPDDLDomain(inst, problem_name, problem_folder, classic=classic)
             if args.probabilistic and args.probabilistic_model == "arrivals"
-            else SkdPDDLDomain(inst, problem_name, problem_folder)
+            else SkdPDDLDomain(inst, problem_name, problem_folder, classic=classic)
         )
     )
     domain = domain_factory()

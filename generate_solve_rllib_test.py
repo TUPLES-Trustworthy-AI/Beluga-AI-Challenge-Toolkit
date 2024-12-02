@@ -536,7 +536,7 @@ if __name__ == "__main__":
     classic = not args.numeric
     max_simulation_steps = args.max_simulation_steps
 
-    if args.probabilistic and args.probabilistic_model == "ppddl" and classic:
+    if args.probabilistic and args.probabilistic_model == "ppddl" and not classic:
         print("Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model.")
     sys.exit(1)
 

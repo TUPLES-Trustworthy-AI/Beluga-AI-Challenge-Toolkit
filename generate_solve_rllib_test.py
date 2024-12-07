@@ -131,6 +131,11 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
             max_nb_steps (np.int32, optional): Maximum number of steps per simulation episode. Defaults to 1000.
         """
         super().__init__(skd_beluga_domain)
+        if isinstance(skd_beluga_domain, SkdSPDDLDomain):
+            # The SkdSPDDLDomain creates the PDDL task at each reset so that
+            # we must reset it (i.e. creates PDDL problem and sample initial state)
+            # in order for skd_beluga_domain.task to be created (required below)
+            skd_beluga_domain.reset()
         self.max_fluent_value: np.int32 = max_fluent_value
         self.max_nb_atoms_or_fluents: np.int32 = max_nb_atoms_or_fluents
         self.max_nb_steps: np.int32 = max_nb_steps
@@ -356,7 +361,6 @@ if __name__ == "__main__":
         default=1,
     )
 
-
     parser.add_argument(
         "-t",
         "--jig-type-distribution",
@@ -537,7 +541,9 @@ if __name__ == "__main__":
     max_simulation_steps = args.max_simulation_steps
 
     if args.probabilistic and args.probabilistic_model == "ppddl" and not classic:
-        print("Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model.")
+        print(
+            "Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model."
+        )
         sys.exit(1)
 
     print("Generating JSON instance")
@@ -549,7 +555,17 @@ if __name__ == "__main__":
     with open(problem_out, "r") as fp:
         inst = json.load(fp, cls=BelugaProblemDecoder)
 
-    print("Creating Sk{}PDDLDomain".format("P" if args.probabilistic else ""))
+    print(
+        "Creating Sk{}PDDLDomain".format(
+            "P"
+            if args.probabilistic and args.probabilistic_model == "ppddl"
+            else (
+                "S"
+                if args.probabilistic and args.probabilistic_model == "arrivals"
+                else ""
+            )
+        )
+    )
     domain_factory = lambda: (
         SkdPPDDLDomain(inst, problem_name, problem_folder)
         if args.probabilistic and args.probabilistic_model == "ppddl"

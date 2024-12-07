@@ -43,9 +43,10 @@ class SkdSPDDLDomain(SkdBaseDomain, RLDomain, FullyObservable):
         beluga_problem: BelugaProblem,
         problem_name: str,
         instance_dir: os.PathLike = None,
-        seed : int = None,
-        classic : bool = True,
+        seed: int = None,
+        classic: bool = True,
     ) -> None:
+        self.task = None
         self.beluga_problem = beluga_problem
         self.problem_name = problem_name
         self.instance_dir = instance_dir

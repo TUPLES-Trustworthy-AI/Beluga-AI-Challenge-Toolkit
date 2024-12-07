@@ -131,6 +131,11 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
             max_nb_steps (np.int32, optional): Maximum number of steps per simulation episode. Defaults to 1000.
         """
         super().__init__(skd_beluga_domain)
+        if isinstance(skd_beluga_domain, SkdSPDDLDomain):
+            # The SkdSPDDLDomain creates the PDDL task at each reset so that
+            # we must reset it (i.e. creates PDDL problem and sample initial state)
+            # in order for skd_beluga_domain.task to be created (required below)
+            skd_beluga_domain.reset()
         self.max_fluent_value: np.int32 = max_fluent_value
         self.max_nb_atoms_or_fluents: np.int32 = max_nb_atoms_or_fluents
         self.max_nb_steps: np.int32 = max_nb_steps

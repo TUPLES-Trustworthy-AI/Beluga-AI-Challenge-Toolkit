@@ -356,7 +356,6 @@ if __name__ == "__main__":
         default=1,
     )
 
-
     parser.add_argument(
         "-t",
         "--jig-type-distribution",
@@ -537,7 +536,9 @@ if __name__ == "__main__":
     max_simulation_steps = args.max_simulation_steps
 
     if args.probabilistic and args.probabilistic_model == "ppddl" and not classic:
-        print("Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model.")
+        print(
+            "Error: SkdPPDDLDomain does not support numeric encoding. Please select a different encoding or model."
+        )
         sys.exit(1)
 
     print("Generating JSON instance")
@@ -549,7 +550,17 @@ if __name__ == "__main__":
     with open(problem_out, "r") as fp:
         inst = json.load(fp, cls=BelugaProblemDecoder)
 
-    print("Creating Sk{}PDDLDomain".format("P" if args.probabilistic else ""))
+    print(
+        "Creating Sk{}PDDLDomain".format(
+            "P"
+            if args.probabilistic and args.probabilistic_model == "ppddl"
+            else (
+                "S"
+                if args.probabilistic and args.probabilistic_model == "arrivals"
+                else ""
+            )
+        )
+    )
     domain_factory = lambda: (
         SkdPPDDLDomain(inst, problem_name, problem_folder)
         if args.probabilistic and args.probabilistic_model == "ppddl"

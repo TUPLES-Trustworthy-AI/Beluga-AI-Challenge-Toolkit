@@ -184,7 +184,9 @@ def compute_score_dict(outcome : SingleSimulationOutcome,
     if outcome.free_racks is not None:
         C = len(prb.racks) / (1 + outcome.free_racks)
     value = A * np.exp(- alpha * B - beta * C)
-    res = {'value': value, 'alpha': alpha, 'beta': beta}
+    # res = {'value': value, 'alpha': alpha, 'beta': beta}
+    res = {'value': value, 'alpha': alpha, 'beta': beta,
+           'A': A, 'B': B, 'C': C}
     return res
 
 # ============================================================================

@@ -1,6 +1,6 @@
-scikit-decide[all]==1.0.2
+scikit-decide==1.0.2
 numpy==1.26.4
 scipy==1.14.1
 gymnasium==0.28.1
 discrete-optimization==0.5.0
-plado>=0.1.2
+plado>=0.1.3

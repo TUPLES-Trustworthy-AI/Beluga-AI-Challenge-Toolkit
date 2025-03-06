@@ -58,8 +58,8 @@ if __name__ == "__main__":
         "-ms",
         "--max_steps",
         dest="max_simulation_steps",
-        help="maximum number of steps within which the goal should be reached",
-        default=50,
+        help="maximum number of steps (per jig) within which the goal should be reached. The number is specified pe jig, so as to naturally scale with the instance size. The default value of 20 is generous, meaning that it should be hit only by plans making a lot of unnecessary swaps.",
+        default=20,
         type=int,
         required=False,
     )
@@ -78,12 +78,11 @@ if __name__ == "__main__":
         "-tl",
         "--time-limit",
         dest="time_limit",
-        help="time limit for the evaluation",
+        help="time limit for the evaluation. This applies to the time for building the plan in the deterministic case, and to the time for running _all_ simulations in the proabilistic case.",
         default=None,
         type=int,
         required=False,
     )
-
 
     parser.add_argument(
         "-pln",

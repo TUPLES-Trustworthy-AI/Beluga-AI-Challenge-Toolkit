@@ -544,7 +544,8 @@ class DeterministicEvaluator:
         state = self.domain.reset()
 
         # Start plan execution
-        for step in range(self.max_steps):
+        scaled_max_steps = len(self.prb.jigs) * self.max_steps
+        for step in range(scaled_max_steps):
             try:
                 # Determine the currently processed flight
                 cbeluga = self.es._get_current_beluga(state)
@@ -690,7 +691,7 @@ class ProbabilisticEvaluator:
         # Setup the planner
         self.planner.setup(self.prb)
 
-    def _run_simulation(self):
+    def _run_simulation(self, past_elapsed_time):
         # Tell the planner that another episode is starting
         try:
             self.planner.setup_episode()
@@ -720,6 +721,7 @@ class ProbabilisticEvaluator:
         trailer_location = {}
 
         # Prepare to collect time statistics
+        # elapsed_time = 0
         elapsed_time = 0
         goal_reached = False
         time_limit_reached = False
@@ -756,6 +758,12 @@ class ProbabilisticEvaluator:
                     goal_reached = True
                     break
 
+                # First time limit check: this might be triggered in case the time spent
+                # on past iterations already exceeds the limit
+                if self.time_limit is not None and past_elapsed_time + elapsed_time > self.time_limit:
+                    time_limit_reached = True
+                    raise EvaluationException('Time limit exceeded')
+
                 # Retrive current action
                 start_time = time.time()
                 ba = self.planner.next_action(bstate, metadata)
@@ -768,8 +776,8 @@ class ProbabilisticEvaluator:
                 # print('PLANNER ACTION')
                 # print(ba)
 
-                # Determine whether the time limit has been exceeded
-                if self.time_limit is not None and elapsed_time > self.time_limit:
+                # Second time limit check. This refers to the current simulation.
+                if self.time_limit is not None and past_elapsed_time + elapsed_time > self.time_limit:
                     time_limit_reached = True
                     raise EvaluationException('Time limit exceeded')
 
@@ -832,11 +840,15 @@ class ProbabilisticEvaluator:
 
         # Run simulations
         sim_outcomes = []
+        total_elapsed_time = 0
         for sample_num in range(self.nsamples):
-            # print(f'>>> EPISODE {sample_num}')
-            sim_outcome = self._run_simulation()
+            # Run a simulation
+            sim_outcome = self._run_simulation(total_elapsed_time)
+            # Update the total elapsed time
+            total_elapsed_time += sim_outcome.plan_construction_time
+            # Store the outcome
             sim_outcomes.append(sim_outcome)
-            # print(sim_outcome)
+        # Compute an aggregated outcome
         outcome = MultipleSimulationOutcome(sim_outcomes)
 
         # Save the outcome to a file

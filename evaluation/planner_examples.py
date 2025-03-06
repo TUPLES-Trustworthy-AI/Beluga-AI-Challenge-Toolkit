@@ -182,7 +182,8 @@ class RandomDeterministicPlanner(DeterministicPlannerAPI):
 
         res = BelugaPlan()
         s = domain.reset()
-        for step in range(self.max_steps):
+        scaled_max_steps = len(prb.jigs) * self.max_steps
+        for step in range(scaled_max_steps):
             # Stop the process if the goal has been reached
             if domain._is_terminal(s):
                 break

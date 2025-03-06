@@ -279,15 +279,19 @@ usage: evaluate_instance.py [-h] [-i INPUT_PROBLEM] [-s SEED] [-or OCCUPANCY_RAT
 The script can be used to evaluate a solution on an existing instance (by specifying the `--input` parameter) or on an instance generated on the fly. The parameters include those used by the generator (which are ignored in case `--input` is used), plus:
 
 - `-ms MAX_SIMULATION_STEPS`, `--max_steps MAX_SIMULATION_STEPS`
-  maximum number of steps within which the goal should be reached (default: 50)
+  maximum number of steps (per jig) within which the goal should be reached. The number is specified pe jig, so as to naturally scale with the instance size.
+  The default value of 20 is generous, meaning that it should be hit only by plans making a lot of unnecessary swaps. (default: 20)
 - `-ns NUM_SAMPLES`, `--num_samples NUM_SAMPLES`
   number of samples for the evaluation. This parameter has no effect in case of a deterministic evaluation (default: 1) -tl TIME_LIMIT, --time-limit TIME_LIMIT
   time limit for the evaluation (default: None)
+- `tl TIME_LIMIT`, `--time-limit TIME_LIMIT`
+  time limit for the evaluation. This applies to the time for building the plan in the deterministic case, and to the time for running _all_ simulations
+  in the proabilistic case. (default: None)
 - `-pln {random,lazy_astar}`, `--planner {random,lazy_astar}`
   the planner to be used for the test (default: random)
 - `-ppe`, `--probabilistic-evaluation`
   enable probabilistic evaluation; this is automtically enable in case a probabilistic instance is generated (default: False)
-* `--prebuilt-plan DET_PLAN_FILE`
+- `--prebuilt-plan DET_PLAN_FILE`
   When this opton is used, the evaluator will process a single, pre-built plan in JSON format. Using this option: 1) overrides plan construction; 2)
   requires to specify and input plan; and 3) is incompatible with probabilistic evaluation (default: None)
 

@@ -323,7 +323,7 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
             outcome = self.skd_beluga_domain._state_step(pddl_action)
             outcome.state = self.make_state_array(outcome.state)
             return TransitionOutcome(
-                state=self.make_state_array(self.make_pddl_state(outcome.state)),
+                state=outcome.state,
                 value=Value(reward=exp(-self.nb_steps) if outcome.termination else 0),
                 termination=outcome.termination or self.nb_steps >= self.max_nb_steps,
                 info=outcome.info,

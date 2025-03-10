@@ -264,11 +264,11 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
                 and restored_state_array[1][atom][-1] >= 0
             ):
                 plado_state.atoms[restored_state_array[1][atom][0]].add(
-                    [
+                    tuple(
                         int(arg)
                         for arg in restored_state_array[1][atom][1:-1]
                         if arg >= 0
-                    ]
+                    )
                 )
         for fluent in range(self.max_nb_atoms_or_fluents):
             if restored_state_array[2][fluent][0] >= 0:
@@ -299,7 +299,7 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
         return SkdBaseDomain.T_event(
             domain=self.skd_beluga_domain,
             action_id=int(action_array[0]),
-            args=[int(arg) for arg in action_array[1:] if arg >= 0],
+            args=tuple([int(arg) for arg in action_array[1:] if arg >= 0]),
         )
 
     def _state_reset(self) -> BelugaGymCompatibleDomain.T_state:
@@ -323,7 +323,7 @@ class ExampleBelugaGymCompatibleDomain(BelugaGymCompatibleDomain):
             outcome = self.skd_beluga_domain._state_step(pddl_action)
             outcome.state = self.make_state_array(outcome.state)
             return TransitionOutcome(
-                state=self.make_state_array(outcome.state),
+                state=outcome.state,
                 value=Value(reward=exp(-self.nb_steps) if outcome.termination else 0),
                 termination=outcome.termination or self.nb_steps >= self.max_nb_steps,
                 info=outcome.info,

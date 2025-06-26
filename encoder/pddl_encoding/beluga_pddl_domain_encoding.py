@@ -12,7 +12,7 @@ from .probabilistic_actions import ProceedToNextBeluga
 from ..pddl.pddl_domain import PDDLDomain
 from .variant import Variant
 # from beluga_lib.problem_def import BelugaProblem
-from ...beluga_lib.beluga_problem import BelugaProblem
+from beluga_lib.beluga_problem import BelugaProblem
 
 
 class DomainEncoding:

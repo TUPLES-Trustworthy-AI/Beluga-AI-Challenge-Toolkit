@@ -4,25 +4,27 @@ import json
 import argparse
 import os
 
-from .beluga_lib.beluga_problem import BelugaProblem
-from .encoder.pddl_encoding import DomainEncoding
-from .encoder.pddl_encoding import encode
-from .beluga_lib.beluga_problem import BelugaProblemDecoder
-from .encoder.pddl_encoding.variant import Variant
+from beluga_lib.beluga_problem import BelugaProblem
+from encoder.pddl_encoding import DomainEncoding
+from encoder.pddl_encoding import encode
+from beluga_lib.beluga_problem import BelugaProblemDecoder
+from encoder.pddl_encoding.variant import Variant
 
 
-def generate_domain(variant: Variant, problem_out: str, inst: None | BelugaProblem = None, domain_name: str="domain.pddl"):
+def generate_domain(variant: Variant, problem_out: str, inst: None | BelugaProblem = None, 
+                    domain_name: str="domain.pddl", write_domain: bool = False):
 
     if inst == None:
         return None
 
     domain_encoding = DomainEncoding(variant, inst)
     name = 'beluga'
-    if problem_out:
-        with open(os.path.join(problem_out, domain_name), 'w') as out_file:
-            out_file.write(domain_encoding.domain.to_pddl(name))
-    else:
-        print(domain_encoding.domain.to_pddl(name))
+    if write_domain:
+        if problem_out:
+            with open(os.path.join(problem_out, domain_name), 'w') as out_file:
+                out_file.write(domain_encoding.domain.to_pddl(name))
+        else:
+            print(domain_encoding.domain.to_pddl(name))
 
     return domain_encoding
 
@@ -39,7 +41,7 @@ def generate_problem( variant: Variant, inst: BelugaProblem, problem_name: str, 
         print(pddl_problem.to_pddl(name))
 
 
-def main(instance_file: str, variant: Variant, problem_out: str):
+def main(instance_file: str, variant: Variant, problem_out: str, write_domain: bool = False):
 
     with open(instance_file, 'r') as fp:
         inst = json.load(fp, cls=BelugaProblemDecoder)
@@ -49,7 +51,7 @@ def main(instance_file: str, variant: Variant, problem_out: str):
     if variant.probabilistic:
         domain_encoding = generate_domain(variant, problem_out, inst, 'domain_' + problem_name + ".pddl")
     else:
-        domain_encoding = generate_domain(variant, problem_out)
+        domain_encoding = generate_domain(variant, problem_out, inst, write_domain=write_domain)
 
     if domain_encoding is None:
         return None
@@ -74,6 +76,9 @@ if __name__ == "__main__":
     parser.add_argument('-p', dest="probabilistic", 
                         help="probabilistic encoding", 
                         action='store_true')
+    parser.add_argument('-d', dest="write_domain", 
+                        help="generate domain", 
+                        action='store_true')
 
 
     args = parser.parse_args()
@@ -85,4 +90,4 @@ if __name__ == "__main__":
     variant.classic = not args.numeric
     variant.probabilistic = args.probabilistic
 
-    main(instance_file, variant, problem_out)
+    main(instance_file, variant, problem_out, write_domain=args.write_domain)

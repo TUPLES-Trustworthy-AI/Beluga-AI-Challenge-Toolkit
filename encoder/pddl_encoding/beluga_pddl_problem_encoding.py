@@ -1,14 +1,14 @@
 # from beluga_lib.problem_def import BelugaProblem
-from ...beluga_lib.beluga_problem import BelugaProblem
-from ...beluga_lib.rack import Rack
-from ...beluga_lib.flight_schedule import Flight
+from beluga_lib.beluga_problem import BelugaProblem
+from beluga_lib.rack import Rack
+from beluga_lib.flight_schedule import Flight
 from ..pddl.pddl_domain import PDDLDomain
 from ..pddl.pddl_literal import PDDLComment
 from ..pddl.pddl_param import PDDLNumericValue
 from ..pddl import PDDLProblem, PDDLParam, PDDLNumericFluent
 from .variant import Variant
 from .. import utils 
-from ...beluga_lib.problem_state import BelugaProblemState
+from beluga_lib.problem_state import BelugaProblemState
 import copy
 
 def _reorder_flights(flights, last_belugas):

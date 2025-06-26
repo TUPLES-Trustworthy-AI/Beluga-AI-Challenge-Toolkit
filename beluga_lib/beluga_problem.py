@@ -1,7 +1,7 @@
 from typing import Dict
 import json
 
-from beluga_tools.beluga_lib.hangar import Hangar
+from beluga_lib.hangar import Hangar
 
 from .jigs import Jig, JigType
 from .rack import Rack

@@ -1,5 +1,5 @@
 # from beluga_lib.problem_def import BelugaProblem
-from ...beluga_lib.beluga_problem import BelugaProblem
+from beluga_lib.beluga_problem import BelugaProblem
 
 from ..pddl import PDDLNumericFluent, PDDLNumericValue, PDDLParam
 from ..pddl.pddl_predicate_def import PDDLPredicateDef

@@ -1,4 +1,4 @@
-from beluga_lib.jigs import Jig
+from beluga_tools.beluga_lib.jigs import Jig
 
 
 class Trailer:

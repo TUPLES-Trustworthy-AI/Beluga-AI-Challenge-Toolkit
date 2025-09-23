@@ -1,3 +1,41 @@
+# EXTENDED Version
+
+This branch contains an extended version of the compeition problem definition.
+The JSON econding now allows trailers and hangars to hold an initial jig.
+
+```
+"trailers_beluga": [
+    {
+        "name": "BT1",
+        "jig": null
+    },
+    ...
+],
+"trailers_factory": [
+    {
+        "name": "FT1",
+        "jig": null
+    },
+    ...
+],
+"hangars": [
+    {
+        "name": "Hangar1",
+        "jig": null
+    },
+    ...
+],
+```
+
+`null` indicated that the trailer/hangar is initially empty. To refer to a jig placed in the trailer or hanger its name is used e.g.
+
+```
+{
+    "name": "BT1",
+    "jig": "jig003"
+}
+```        
+
 # Beluga Competition Toolkit
 
 The competition toolkit is a set of tools which help generate and simulate problems in different formalisms (PDDL, RL, pure json, etc.).

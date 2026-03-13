@@ -1,7 +1,7 @@
 import copy  # TODO temporarily added to avoid constructing the pddl string twice
 import os
 from tempfile import TemporaryDirectory
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, Optional, Union
 
 from beluga_lib.beluga_problem import BelugaProblem
 from beluga_lib.problem_state import BelugaProblemState
@@ -242,7 +242,7 @@ class SkdBaseDomain(D):
         params = self._deserialize_objects(atom[1:])
         if idx > self.task.num_fluent_predicates:
             return None
-        return (idx, *params)
+        return (idx, params)
 
     def _deserialize_fluent_atom(self, atom: tuple[str]) -> tuple[int] | None:
         if len(atom) == 0:
@@ -250,21 +250,28 @@ class SkdBaseDomain(D):
         idx = self._function_idx.get(atom[0].lower(), None)
         if idx is None:
             raise ValueError(f"function {atom[0]} doesn't exist")
-        params = self._deserialize_objects(atom[1:])
-        return (idx, *params)
+        params = self._deserialize_objects(atom[1:-1])
+        value = atom[-1]
+        return (idx, params, value)
 
     def deserialize_state(
-        self, atoms: Iterable[tuple[str]], fluents: Iterable[tuple[tuple[str], int]]
+        self, atoms: Iterable[tuple[str]], fluents: Iterable[tuple[Union[str, int], ...]]
     ):
-        atoms_ = tuple(
-            x for x in (self._deserialize_atom(atom) for atom in atoms) if x is not None
-        )
-        fluents_ = tuple(
-            (self._deserialize_fluent_atom(atom), value) for (atom, value) in fluents
-        )
+        atoms_ = [[] for _ in range(self.task.num_fluent_predicates)]
+        for atom in atoms:
+            idx, params = self._deserialize_atom(atom)
+            atoms_[idx].append(params)
+        atoms_frozen = tuple(tuple(subatoms) for subatoms in atoms_)
+
+        fluents_ = [[] for _ in range(len(self.task.functions))]
+        for atom in fluents:
+            idx, params, value = self._deserialize_fluent_atom(atom)
+            fluents_[idx].append((params, value))
+        fluents_frozen = tuple(tuple(subfluents) for subfluents in fluents_)
+
         state = State(self, PladoState(0, 0), [])
-        state.atoms = atoms_
-        state.fluents = fluents_
+        state.atoms = atoms_frozen
+        state.fluents = fluents_frozen
         return state
 
     def deserialize_action(self, action: tuple[str]) -> Action:
@@ -278,23 +285,26 @@ class SkdBaseDomain(D):
     def serialize_state(
         self, state: State
     ) -> tuple[tuple[str], tuple[tuple[str], int]]:
-        return tuple(
-            (self.task.predicates[p[0]].name, *(self.task.objects[f] for f in p[1:]))
-            for p in state.atoms
-        ), tuple(
+        readable_atoms = tuple(
+            (self.task.predicates[i].name, *(self.task.objects[o] for o in atom))
+            for i, subatoms in enumerate(state.atoms) for atom in subatoms
+        )
+        readable_fluents = tuple(
             (
                 (
-                    self.task.functions[f[0]].name,
-                    *(self.task.objects[f] for f in f[1:]),
+                    self.task.functions[i].name,
+                    *(self.task.objects[o] for o in f),
                     value,
                 )
-                for f, value in state.fluents
+                for i, subfluents in enumerate(state.fluents)
+                for f, value in subfluents
             )
         )
+        return readable_atoms, readable_fluents
 
     def serialize_action(self, action: Action) -> tuple[str]:
         return (
-            self.task.actions[action.action_id],
+            self.task.actions[action.action_id].name,
             *(self.task.objects[f] for f in action.args),
         )
 
